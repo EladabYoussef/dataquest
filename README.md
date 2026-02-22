@@ -142,55 +142,6 @@ Predictions are generated through a two-stage inference pipeline:
 
 This two-stage approach decouples base model training from threshold optimization, enabling rapid adjustment to new performance targets without expensive model retraining. Thresholds can be recalibrated in seconds given new labeled validation data.
 
----
-
-## Solution Structure
-
-```
-submission/
-├── solution.py                 # Preprocessing, model loading, prediction
-├── model.pkl                   # Serialized LightGBM model + thresholds
-├── requirements.txt            # Python dependencies
-├── Technical_Report.tex        # LaTeX technical report
-├── README.md                   # This file
-├── Model_Analysis_Report.ipynb # Jupyter notebook with analysis
-└── plots/                      # Generated visualizations
-    ├── feature_importances.png              # Feature importance bar chart
-    ├── confusion_matrix.png                 # Multi-class confusion matrix
-    ├── feature_correlation_matrix.png       # Correlation heatmap
-    ├── variance_cumulative_variance.png     # PCA scree plot
-    └── accuracy_latency_tradeoff.png        # Latency-accuracy curve
-```
-
-### Key Files
-
-- **`solution.py`**: Contains three main functions:
-  - `preprocess(df)`: Data engineering and feature creation with zero external dependencies
-  - `load_model()`: Model deserialization from pickle file
-  - `predict(df, model_dict)`: Inference with Scipy-optimized threshold application
-
-- **`model.pkl`**: Dictionary containing:
-  - `'lgb'`: Trained LightGBM classifier (5-class multi-class model)
-  - `'thresholds'`: Per-class decision thresholds optimized for macro F1 (dict: class_id → threshold_value)
-
-### Dependencies
-
-```
-pandas (3.0.1)
-numpy (2.4.2)
-scikit-learn (1.8.0)
-lightgbm (4.6.0)
-scipy (1.17.0)
-joblib
-```
-
-Install with:
-```bash
-pip install -r requirements.txt
-```
-
----
-
 ## Conclusion
 
 The proposed solution delivers a **production-ready insurance bundle predictor** with strong baseline accuracy (F1=0.60) and graceful degradation under latency constraints (F1=0.46). 
@@ -217,58 +168,6 @@ The proposed solution delivers a **production-ready insurance bundle predictor**
 | **Latency-Constrained** | 0.46 | <10ms | Real-time API, mobile applications |
 | **Recommended** | 0.50-0.58 | 20-50ms | Production deployment |
 
----
-
-## Usage Examples
-
-### Installation
-
-```bash
-cd submission
-pip install -r requirements.txt
-```
-
-### Running Predictions
-
-```python
-import pandas as pd
-from solution import preprocess, load_model, predict
-
-# Load your data
-df = pd.read_csv('data.csv')
-
-# Preprocess
-df_processed = preprocess(df)
-
-# Load model with optimized thresholds
-model_dict = load_model()
-
-# Get predictions
-predictions = predict(df_processed, model_dict)
-
-# predictions DataFrame with columns:
-# - User_ID: Customer identifier
-# - Purchased_Coverage_Bundle: Predicted bundle class (0-4)
-print(predictions.head())
-```
-
-### Running Analysis Notebook
-
-```bash
-cd submission
-jupyter notebook Model_Analysis_Report.ipynb
-```
-
-This will execute the full analysis pipeline including:
-- Model loading and validation
-- Feature importance visualization
-- PCA analysis with scree plot
-- Feature correlation heatmap
-- Individual prediction explanations
-- Latency-accuracy trade-off analysis
-
----
-
 ## Technical Specifications
 
 | Aspect | Details |
@@ -293,11 +192,4 @@ The solution prioritizes:
 4. **Robustness**: Per-class threshold optimization for balanced multi-class performance
 5. **Deployability**: Single pickle file with model + thresholds, minimal dependencies
 
----
 
-**Last Updated**: February 2026  
-**Model Version**: Production v1.0  
-**Framework**: LightGBM 4.6.0  
-**Python**: 3.14+
-
-For questions or issues, refer to the Technical Report (`Technical_Report.tex`) or analysis notebook (`Model_Analysis_Report.ipynb`).
